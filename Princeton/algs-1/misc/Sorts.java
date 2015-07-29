@@ -1,5 +1,5 @@
 public class Sorts { 
-    private <Item> void printElements(Item[] A, int lo, int hi, boolean show)
+    private <T> void printElements(T[] A, int lo, int hi, boolean show)
     {
         if (!show)
             return;
@@ -11,54 +11,58 @@ public class Sorts {
     }
 
 
-    private <Item> void printElements(Item[] A, boolean show)
+    private <T> void printElements(T[] A, boolean show)
     {
         printElements(A, 0, A.length-1, show);
     }
     
-    private <Item> void printElements(Item[] A)
+    private <T> void printElements(T[] A)
     {
         printElements(A, 0, A.length-1, true);
     }
 
 
 
-    private <Item> void swap(Item[] A, int a, int b)
+    private <T> void swap(T[] A, int a, int b)
     {
-        Item p = A[a];
+        T p = A[a];
         A[a] = A[b];
         A[b] = p;
     }
     
-    private <Item>void swap(Item[] A, Item[] B)
+    private <T>void swap(T[] A, T[] B)
     {
-        Item[] t = A;
+        T[] t = A;
         A = B;
         B = t;
     }
 
  
-    private static <Item extends Comparable<Item>> boolean less(Item i, Item j)
+    private static <T extends Comparable<T>> boolean less(T[] A, int i, int j)
+    {
+        return A[i].compareTo(A[j]) < 0;
+    }
+    private static <T extends Comparable<T>> boolean less(T i, T j)
     {
         return i.compareTo(j) < 0;
     }
 
-    private static <Item extends Comparable<Item>> boolean lessOrequal(Item i, Item j)
+    private static <T extends Comparable<T>> boolean lessOrequal(T i, T j)
     {
         return i.compareTo(j) <= 0;
     }
 
-    private static <Item extends Comparable<Item>> boolean equal(Item i, Item j)
+    private static <T extends Comparable<T>> boolean equal(T i, T j)
     {
         return i.compareTo(j) == 0;
     }
 
 
-    private static <Item extends Comparable<Item>>boolean isSorted(Item[] A)
+    private static <T extends Comparable<T>>boolean isSorted(T[] A)
     {
         return isSorted(A, 0, A.length-1);
     }
-    private static <Item extends Comparable<Item>>boolean isSorted(Item[] A, int s, int h)
+    private static <T extends Comparable<T>>boolean isSorted(T[] A, int s, int h)
     {
         for (int i = s; i < h; i++)
             if(!lessOrequal(A[i], A[i+1]))
@@ -66,7 +70,7 @@ public class Sorts {
         return true;
     }
 
-    public <Item extends Comparable<Item>>void insertionsort(Item[] A, int s, int h)
+    public <T extends Comparable<T>>void insertionsort(T[] A, int s, int h)
     {
         int i, j, k;
         for (i = s; i < A.length; i += h) {
@@ -81,15 +85,15 @@ public class Sorts {
             StdIn.readLine();
         }
     }
-    public <Item extends Comparable<Item>>void insertionsort(Item[] A)
+    public <T extends Comparable<T>>void insertionsort(T[] A)
     {
         insertionsort(A, 0, 1);
     }
 
-    public <Item extends Comparable<Item>>void selectionsort(Item[] A)
+    public <T extends Comparable<T>>void selectionsort(T[] A)
     {
         int i, j, k;
-        Item min;
+        T min;
 
         if (A.length == 1)
             return;
@@ -132,7 +136,7 @@ public class Sorts {
         }
     }
 **/
-    public <Item extends Comparable<Item>>void shellsort(Item[] A)
+    public <T extends Comparable<T>>void shellsort(T[] A)
     {
         int i;
         int h = 1;
@@ -148,7 +152,7 @@ public class Sorts {
         }
     }
 
-    public <Item extends Comparable<Item>> void merge(Item[] A, Item[] aux, int lo, int mid, int hi, boolean copy)
+    public <T extends Comparable<T>> void merge(T[] A, T[] aux, int lo, int mid, int hi, boolean copy)
     {
         int i, j, k;
         i = lo;
@@ -171,7 +175,7 @@ public class Sorts {
     }
 
 
-    public <Item extends Comparable<Item>> void top_mergesort(Item[] A, Item[] aux, int lo, int hi)
+    public <T extends Comparable<T>> void top_mergesort(T[] A, T[] aux, int lo, int hi)
     {
         int m;
         
@@ -183,7 +187,7 @@ public class Sorts {
         }
     }
 
-   public <Item extends Comparable<Item>> void bottom_mergesort(Item[] A, Item[] aux)
+   public <T extends Comparable<T>> void bottom_mergesort(T[] A, T[] aux)
     {
         int m, h;
         int lo, hi;
@@ -199,7 +203,7 @@ public class Sorts {
     }
 
 
-    private <Item extends Comparable<Item>> int median3(Item[] A, int i, int j, int k)
+    private <T extends Comparable<T>> int median3(T[] A, int i, int j, int k)
     {
         int p = i;
 
@@ -220,14 +224,13 @@ public class Sorts {
        return p; 
     }
 
-    private <Item extends Comparable<Item>> int partition(Item[] A, int lo, int hi)
+    private <T extends Comparable<T>> int partition(T[] A, int lo, int hi)
     {
         int i;
         int j;
         int pivot;
 
-        Item v = A[lo];
-        StdOut.println("v = " + v);
+        T v = A[lo];
         i = lo;
         j = hi+1;
         while (true) {
@@ -237,12 +240,10 @@ public class Sorts {
             swap(A, i, j);
         }
         swap(A, lo, j);
-        printElements(A, true);
-//        StdOut.println("index = " + j);
         return j;
     }
 
-    public <Item extends Comparable<Item>> Item select(Item[] A, int pos)
+    public <T extends Comparable<T>> T select(T[] A, int pos)
     {
         int j;
         int hi, lo;
@@ -261,13 +262,13 @@ public class Sorts {
                         lo = j+1;
                 }
     }
-    public <Item extends Comparable<Item>> void qselectionsort(Item[] A)
+    public <T extends Comparable<T>> void qselectionsort(T[] A)
     {
         for (int i = 0; i < A.length; i++)
             select(A, i);
     }
 
-    public <Item extends Comparable<Item>> void quicksort(Item[] A, int lo, int hi)
+    public <T extends Comparable<T>> void quicksort(T[] A, int lo, int hi)
     {
 
         int p, l;
@@ -282,7 +283,7 @@ public class Sorts {
         }
     }
 
-    public <Item extends Comparable<Item>> void quicksort_3way(Item[] A, int lo, int hi)
+    public <T extends Comparable<T>> void quicksort_3way(T[] A, int lo, int hi)
     {
         
         if (lo >= hi)
@@ -305,13 +306,63 @@ public class Sorts {
             else
                 i++;
         }
-        printElements(A);
+        //printElements(A);
         quicksort_3way(A, lo, lt-1);
         quicksort_3way(A, gt+1, hi);
     }
 
 
-    public static <Item extends Comparable<Item>> double time(Item[] A, Item[] B, String str, String arg)
+    private <T extends Comparable<T>> void swim(T[] A, int i)
+    {
+        while (i > 1 && less(A, i, i/2)) {
+            swap(A, i, i/2);
+            i = i/2;
+        }
+    }
+
+    private <T extends Comparable<T>> void sink(T[] A, int p, int N)
+    {
+        int c; 
+        while (2*p <= N) {
+            c = 2*p;
+            if (((c+1) <= N) && less(A, c+1, c)) 
+                c++;
+
+            if (!less(A, c, p))
+                break;
+
+            swap(A, c, p);
+            p = c; 
+        }
+
+
+    }
+
+    public <T extends Comparable<T>> void heapsort(T[] A, boolean print)
+    {
+        int N = A.length;
+        T[] E = (T[])new Comparable[N+1];
+
+        for (int i = 0; i < N; i++) {
+            E[i+1] = A[i];
+        }
+        A = E; 
+        for (int i = N/2; i >= 1; i--)
+            sink(A, i, N);
+
+        for (int i = 1, K = N; i <= N; i++, K--) {
+            if (print)
+                StdOut.print(A[1] + " ");
+            swap(A, 1, K); 
+            sink(A, 1, K-1);
+        }
+        if (print)
+            StdOut.println();
+    }
+
+
+
+    public static <T extends Comparable<T>> double time(T[] A, T[] B, String str, String arg)
     {
         Stopwatch timer = new Stopwatch();
 
@@ -339,21 +390,19 @@ public class Sorts {
                 break;
 
             case "quicksort":
-               // StdRandom.shuffle(A);
+                StdRandom.shuffle(A);
                 S.quicksort(A, 0, A.length-1);
                 break;
     
             case "qselectionsort":
-    //            StdRandom.shuffle(A);
+                StdRandom.shuffle(A);
                 S.qselectionsort(A);
                 break;
             
             case "quicksort_3way":
-//                StdRandom.shuffle(A);
+                StdRandom.shuffle(A);
                 S.quicksort_3way(A, 0, A.length-1);
                 break;
-
-
 
             case "select":
                 if (arg == null) {
@@ -361,6 +410,10 @@ public class Sorts {
                     break;
                 }
                 StdOut.println(S.select(A, Integer.parseInt(arg)));
+                break;
+
+            case "heapsort":
+                S.heapsort(A, arg.equals("show"));
                 break;
 
 
@@ -379,15 +432,16 @@ public class Sorts {
     public static void main(String[] args)
     {
         if (args.length == 0 || args[0] == null) {
-            StdOut.println("Usage:javac programname sortname[shellsort|insertionsort|selectionsort|quicksort|top_mergesort|bottom_mergesort|select]");
+            StdOut.println("Usage:javac programname sortname[shellsort|insertionsort|selectionsort");
+            StdOut.println("|quicksort|top_mergesort|bottom_mergesort|select|heapsort]");
             return;
         }
         String[] str   = StdIn.readAllStrings();
         String[] aux   = str.clone();//new String[str.length];
-        if (args.length >= 2)
-            StdOut.println(args[0] + " "+ "Time = " + time(str, aux, args[0], args[1]));
+        if (args.length >= 2) 
+            StdOut.printf("Algo = %-18s, Time = %s\n", args[0], time(str, aux, args[0], args[1]));
         else
-            StdOut.println(args[0] + " "+ "Time = " + time(str, aux, args[0], ""));
+            StdOut.printf("Algo = %-18s, Time = %s\n", args[0], time(str, aux, args[0], ""));
 
     }
 }
