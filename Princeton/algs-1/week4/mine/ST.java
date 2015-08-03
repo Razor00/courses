@@ -1,4 +1,5 @@
 import java.util.*;
+
 public class ST<Key extends Comparable<Key>, Value> {
     private int N;
     Node root;
@@ -151,26 +152,24 @@ public class ST<Key extends Comparable<Key>, Value> {
         return 1 + size(node.left) + rank(node.right, key); 
     }
 
-    public Value min()
+    private Node min(Node node)
     {
-        if (root == null)
-            return null;
+        if (node == null) return null;
 
-        Node node = root;
         while (node.left != null)
             node = node.left;
-        return node.value;
+
+        return node;
     }
 
-    public Value max()
+    private Node max(Node node)
     {
-        if (root == null)
-            return null;
+        if (node == null) return null;
 
-        Node node = root;
         while (node.right != null)
             node = node.right;
-        return node.value;
+
+        return node;
     }
 
 
@@ -196,7 +195,6 @@ public class ST<Key extends Comparable<Key>, Value> {
 
     private Node deleteMin(Node node)
     {
-        if (node == null) return null;
         if (node.left == null) return node.right;
 
         node.left   = deleteMin(node.left);
@@ -206,17 +204,62 @@ public class ST<Key extends Comparable<Key>, Value> {
 
     private Node delete(Node node, Key key)
     {
+        if (node == null) return null;
         int cmp = key.compareTo(node.key);
 
-        if (cmp < 0) delete(node.left, key);
-        if (cmp > 0) delete(node.right, key); 
+        if (cmp < 0) 
+            node.left  = delete(node.left, key);
+        else
+        if (cmp > 0) 
+            node.right = delete(node.right, key); 
+        else {
+            if (node.right == null) return node.left;
+            if (node.left  == null) return node.right;
 
+            // if a node has both it's children, then 
+            // make the smallest child of the right 
+            // subtree the current node
+            Node T = node;
+            node       = min(T.right);
+            node.right = deleteMin(T.right);
+            node.left  = T.left;
+            node.count = 1 + size(node.left) + size(node.right);
+        }
+        return node;
     }
 
     public void delete(Key key)
     {
-        delete(root, key);
+        if (root == null)
+            return;
+
+        root = delete(root, key);
     }
+
+    private Key getItem(Node node, int pos)
+    {
+        int lsz, rsz;
+        while (node != null) {
+            lsz = size(node.left);
+            rsz = size(node.right);
+            if (pos <= lsz) {
+                node = node.left;
+            }
+            else {
+                pos = pos - lsz - 1;
+                if (pos == 0)
+                    return node.key;
+                node = node.right;
+            }
+        }
+        return null;
+    }
+
+    public Key getItem(int pos)
+    {
+        return getItem(root, pos);
+    }
+
     private void inorder(Node node, Queue<Key> q)
     {
         if (node == null) return;
@@ -225,10 +268,30 @@ public class ST<Key extends Comparable<Key>, Value> {
         inorder(node.right, q);
     }
 
+    private void levelorder(Node node, Queue<Key> q)
+    {
+        Queue<Node> t  = new Queue<>();
+        if (node != null)
+            t.enqueue(node);
+        Key k;
+        Node np;
+        while (!t.isEmpty()) {
+            np = t.dequeue();
+            q.enqueue(np.key);
+            
+            if (np.left != null)
+                t.enqueue(np.left);
+
+            if (np.right != null)
+                t.enqueue(np.right);
+        }
+    }
+
     public Iterable<Key> keys()
     {
         Queue<Key> queue = new Queue<>();
         inorder(root, queue);
+        //levelorder(root, queue);
         return queue;
     }
 
@@ -250,16 +313,17 @@ public class ST<Key extends Comparable<Key>, Value> {
         String k;
         Integer v;
         while (true) {
-            StdOut.printf("\n\n 1: Insert\n 2: Get \n 3: Print keys\n 4: Rank \n 5: Ceiling\n 6: Floor\n");
-            int n = StdIn.readInt();
-            switch (n) {
-                case 1:
+            StdOut.printf("\n\n i: Insert\n g: Get \n p: Print keys\n r: Rank \n c: Ceiling\n f: Floor\n d: Delete\n");
+            StdOut.printf(" l: Order \n x: Exit \n\n");
+            String ch = StdIn.readString();
+            switch (ch) {
+                case "i":
                     StdOut.printf("Enter key (space) value:");
                     k = StdIn.readString();
                     v = StdIn.readInt();
                     st.put(k, v);
                     break;
-                case 2:
+                case "g":
                     StdOut.printf("Enter key :");
                     k = StdIn.readString();
                     v = st.get(k);
@@ -269,19 +333,19 @@ public class ST<Key extends Comparable<Key>, Value> {
                         StdOut.println("Value of Key " + k + ":" + v);
                     break;
     
-                case 3:
+                case "p":
                     for (String s:st.keys())
                         StdOut.print(s + " ");
                     StdOut.println();
                     break;
 
-                case 4:
+                case "r":
                     StdOut.printf("Enter key:");
                     k = StdIn.readString();
                     StdOut.println("Rank " + k + " = " + st.rank(k));
                     break;
                 
-                case 5:
+                case "c":
                     StdOut.printf("Enter key:");
                     k = StdIn.readString();
                     String  ceil = st.ceiling(k);
@@ -289,22 +353,34 @@ public class ST<Key extends Comparable<Key>, Value> {
                     StdOut.println("Ceiling " + k + " = " + ceil);
                     break;
 
-                case 6:
+                case "f":
                     StdOut.printf("Enter key:");
                     k = StdIn.readString();
                     String  floor = st.floor(k);
                     if (floor == null) floor = "null";
                     StdOut.println("Floor " + k + " = " + floor);
                     break;
+                
+                case "l":
+                    StdOut.printf("Enter position:");
+                    v = StdIn.readInt();
+                    StdOut.println("Item at Position: "+ v + " " + st.getItem(v));
+                    break;
+
+                case "d":
+                    StdOut.printf("Enter key:");
+                    k = StdIn.readString();
+                    st.delete(k);
+                    break;
+
+                case "x":
+                    return;
 
                 default:
-                    StdOut.println("Invalid option chosen = " + n);
+                    StdOut.println("Invalid option chosen = " + ch);
                     break;
             }
         }
 
     }
-
-
-
 }
