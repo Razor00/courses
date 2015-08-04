@@ -103,6 +103,27 @@ public class Solver {
         return null;
     }
 
+    public final static void clearConsole()
+    {
+        try
+        {
+            final String os = System.getProperty("os.name");
+
+            if (os.contains("Windows"))
+            {
+                Runtime.getRuntime().exec("cls");
+            }
+            else
+            {
+                Runtime.getRuntime().exec("clear");
+            }
+        }
+        catch (final Exception e)
+        {
+            //  Handle any exceptions.
+            //      }
+         }
+    }
     public static void main(String[] args) {
 
         // create initial board from file
@@ -125,8 +146,18 @@ public class Solver {
             StdOut.println("No solution possible");
         else {
             StdOut.println("Minimum number of moves = " + solver.moves());
-            for (Board board : solver.solution())
+            for (Board board : solver.solution()) {
+                clearConsole();
+                StdOut.print("\u001b[2J");
                 StdOut.println(board);
+
+                try {
+                    Thread.sleep(1000);
+                }
+                catch (Exception e) {
+                    StdOut.println(e);
+                }
+            }
         }
     }
 }
