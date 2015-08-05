@@ -132,7 +132,7 @@ public class ST<Key extends Comparable<Key>, Value> {
 
     public int rank(Key key) 
     {
-        return rank(root, key);
+        return rank(root, key) + 1;
     }
 
     //Position of the key, if its order among the keys
@@ -296,6 +296,50 @@ public class ST<Key extends Comparable<Key>, Value> {
     }
 
 
+    private int range(Node h, Queue<Key> q, int pos, int lo, int hi)
+    {
+        if (h == null)  return 0;
+        if (lo > hi)    return 0;
+
+        if (lo < pos && h.left != null) { 
+            int off = 1 + size(h.left.right);
+            lo = range(h.left, q, pos - off, lo, hi);
+        }
+
+        if (pos == lo) { 
+            q.enqueue(h.key);
+            lo++;
+        }
+       
+        if (lo > pos & h.right != null) { 
+            int off = 1 + size(h.right.left);
+            lo = range(h.right, q, pos + off, lo, hi);
+        }         
+        return lo;
+    }
+
+    public Iterable<Key> range(int lo, int hi)
+    {
+        Queue<Key> queue = new Queue<>();
+        assert(lo < hi);
+        
+        if (lo <= size(root))
+            range(root, queue, size(root.left) + 1, lo, hi);
+        return queue;
+    }
+
+    private int height(Node h)
+    {
+        if (h == null) return 0;
+
+        return Math.max(height(h.left), height(h.right)) + 1;
+    }
+
+    public int height()
+    {
+        return height(root)-1;
+    }
+
     public boolean isEmpty()
     {
         return root == null;
@@ -312,9 +356,16 @@ public class ST<Key extends Comparable<Key>, Value> {
         ST<String, Integer> st = new ST<>();
         String k;
         Integer v;
-        while (true) {
+        String[] str = StdIn.readAllStrings();
+        for (int i = 0; i < str.length; i++)
+            st.put(str[i], 1);
+
+        StdOut.println("Range "  + st.range(3, 20));
+
+        boolean flag = false;
+        while (flag) {
             StdOut.printf("\n\n i: Insert\n g: Get \n p: Print keys\n r: Rank \n c: Ceiling\n f: Floor\n d: Delete\n");
-            StdOut.printf(" l: Order \n x: Exit \n\n");
+            StdOut.printf(" l: Order \n R: Range :\n x: Exit \n\n");
             String ch = StdIn.readString();
             switch (ch) {
                 case "i":
@@ -371,6 +422,18 @@ public class ST<Key extends Comparable<Key>, Value> {
                     StdOut.printf("Enter key:");
                     k = StdIn.readString();
                     st.delete(k);
+                    break;
+
+                 case "h":
+                    StdOut.println("Height = " + st.height());
+                    break;
+                
+                 case "R":
+                    int r1, r2;
+                    StdOut.printf("Enter key1 and key2: ");
+                    r1 = StdIn.readInt();
+                    r2 = StdIn.readInt();
+                    StdOut.println("Range " + "(" + r1 + "," + r2 + ")" + " = " + st.range(r1, r2));
                     break;
 
                 case "x":

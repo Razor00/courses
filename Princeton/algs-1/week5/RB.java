@@ -91,11 +91,11 @@ public class RB<Key extends Comparable<Key>, Value> {
         // 1. First check for Right red node (rotateLeft)
         // 2. Check for two red left node (rotate right)
         // 3. flipcolors if have red nodes on left and right
-        /*
+        
         if (isRed(node.right) && !isRed(node.left))     node = rotateLeft(node);
         if (isRed(node.left) && isRed(node.left.left))  node = rotateRight(node);
         if (isRed(node.left) && isRed(node.right))      flipColors(node);
-        */
+       
         return node;
 
     }
@@ -358,7 +358,38 @@ public class RB<Key extends Comparable<Key>, Value> {
                 t.enqueue(np.right);
         }
     }
+    private int range(Node h, Queue<Key> q, int pos, int lo, int hi)
+    {
+        if (h == null)  return 0;
+        if (lo > hi)    return 0;
 
+        if (lo < pos && h.left != null) { 
+            int off = 1 + size(h.left.right);
+            lo = range(h.left, q, pos - off, lo, hi);
+        }
+
+        if (pos == lo) { 
+            q.enqueue(h.key);
+            lo++;
+        }
+       
+        if (lo > pos & h.right != null) { 
+            int off = 1 + size(h.right.left);
+            lo = range(h.right, q, pos + off, lo, hi);
+        }         
+        return lo;
+    }
+
+    public Iterable<Key> range(int lo, int hi)
+    {
+        assert(lo <= hi);
+        assert(lo > 0);
+        assert(root != null);
+        Queue<Key> q = new Queue<>();
+        range(root, q, (1 + size(root.left)), lo, hi);
+
+        return q;
+    }
     public Iterable<Key> keys()
     {
         Queue<Key> queue = new Queue<>();
@@ -415,7 +446,7 @@ public class RB<Key extends Comparable<Key>, Value> {
         Integer v;
         while (true) {
             StdOut.printf("\n\n i: Insert\n g: Get \n p: Print keys\n r: Rank \n c: Ceiling\n f: Floor\n d: Delete\n");
-            StdOut.printf(" l: Order \n h: height \n x: Exit \n\n");
+            StdOut.printf(" l: Order \n h: height \n R: Range \n x: Exit \n\n");
             String ch = StdIn.readString();
             switch (ch) {
                 case "i":
@@ -478,6 +509,13 @@ public class RB<Key extends Comparable<Key>, Value> {
                     StdOut.println("Height = " + rb.height());
                     break;
 
+                case "R":
+                    int r1, r2;
+                    StdOut.printf("Enter key1 and key2: ");
+                    r1 = StdIn.readInt();
+                    r2 = StdIn.readInt();
+                    StdOut.println("Range " + "(" + r1 + "," + r2 + ")" + " = " + rb.range(r1, r2));
+                    break;
 
                 case "x":
                     return;
