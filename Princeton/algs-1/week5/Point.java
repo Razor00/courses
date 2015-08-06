@@ -12,8 +12,8 @@ public class Point implements Comparable <Point>{
 
         public int compareTo(Point that)
         {
-            if (this.x < that.y) return -1;
-            if (this.x > that.y) return +1;
+            if (this.x < that.x) return -1;
+            if (this.x > that.x) return +1;
             if (this.y < that.y) return -1;
             if (this.y > that.y) return +1;
             return 0;
@@ -30,6 +30,8 @@ public class Point implements Comparable <Point>{
         {
             return y;
         }
+        public void String()
+        {
+            StdOut.println(x + " " + y);
+        }
     }
-
-

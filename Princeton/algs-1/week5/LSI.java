@@ -25,6 +25,9 @@ public class LSI {
                 pq.insert(new Point(x2, y2, NONE));
             }
         }
+        Iterator <Point> itr = pq.iterator();
+        while(itr.hasNext()) 
+            itr.next().String();
 
         TreeSet<Integer> st = new TreeSet<>();
         while (!pq.isEmpty()) {
@@ -40,6 +43,8 @@ public class LSI {
                 Point p1, p2;
                 p1 = p;
                 p2 = pq.delMin();
+                p1.String();
+                p2.String();
                 assert(p2.pos() == NONE);
                 StdOut.println("Intersection Points = x = " + p1.x() + " " + st.subSet(p1.y(), true, p2.y(), true));
             }
