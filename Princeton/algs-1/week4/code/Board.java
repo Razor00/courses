@@ -130,7 +130,6 @@ public class Board {
         
 
         exch(tw.tiles, p1, p2);
-//        StdOut.println(tw.toString());
         tw.manhattanDst = getMandist(tw.tiles, manhattanDst, p1, p2);
         return tw;
 
