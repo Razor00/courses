@@ -6,13 +6,11 @@ public class KdTree {
     private Node root;
     private static class Node {
         private Point2D p;
-        private RectHV rect;
         private Node left, right;
 
-        public Node(Point2D p, RectHV rect)
+        public Node(Point2D p)
         {
             this.p = p;
-            this.rect = rect;
             this.left = null;
             this.right = null;
         }
@@ -24,10 +22,10 @@ public class KdTree {
         N = 0;
     }
 
-    private Node createNode(Point2D p, RectHV rect)
+    private Node createNode(Point2D p)
     {
         N++;
-        return new Node(p, rect);
+        return new Node(p);
     }
 
     private int compare(Point2D p1, Point2D p2, boolean odd)
@@ -78,19 +76,19 @@ public class KdTree {
         return contains(root, p, true);
     }
     
-    private Node put(Node h, RectHV rect, Point2D p, boolean odd)
+    private Node put(Node h, Point2D p, boolean odd)
     {
-        if (h == null) return createNode(p, rect);
+        if (h == null) return createNode(p);
 
         int cmp = compare(p, h.p, odd);
-        if      (cmp < 0)  h.left  = put(h.left,  getRect(LEFT, rect, h.p, odd), p, !odd);
-        else if (cmp > 0)  h.right = put(h.right, getRect(RIGHT, rect, h.p, odd), p, !odd); 
+        if      (cmp < 0)  h.left  = put(h.left,  p, !odd);
+        else if (cmp > 0)  h.right = put(h.right, p, !odd); 
         return h;
     }
 
     public void insert(Point2D p)
     {
-        root = put(root, new RectHV(0, 0, 1, 1), p, true);
+        root = put(root, p, true);
     }
     
     public boolean isEmpty()
@@ -108,10 +106,8 @@ public class KdTree {
         if (h == null) return;
         Point2D p;
 
-        StdOut.println(h.p.toString() + " "+  h.rect.toString() + " " +rect.toString());
         if (odd) {
             RectHV r = new RectHV(rect.xmin(), rect.ymin(), h.p.x(), rect.ymax());
-        //    assert(h.rect.equals(r) == true);
             inorder(h.left,  r, !odd);
 
             StdDraw.setPenColor(StdDraw.RED);
@@ -127,7 +123,6 @@ public class KdTree {
         }
         else {
             RectHV r = new RectHV(rect.xmin(), rect.ymin(), rect.xmax(), h.p.y());
-//            assert(h.rect.equals(r) == true);
             inorder(h.left, r, !odd);
             StdDraw.setPenColor(StdDraw.BLUE);
             p = new Point2D(rect.xmin(), h.p.y()); 
@@ -142,7 +137,7 @@ public class KdTree {
 
     }
     
-
+/*
     private void inorder(Node h, boolean odd, String dir)
     {
         Point2D p, q;
@@ -181,41 +176,56 @@ public class KdTree {
         preorder(h.left, "left");
         preorder(h.right, "right");
     }
-//    public void preorder()
-//    {
-//        preorder(root, "none");
-//    }
-    public void draw()
+    public void preorder()
     {
-        inorder(root, true, "none");
-//        inorder(root, new RectHV(0, 0, 1, 1), true);
+    preorder(root, "none");
     }
 
-    private void range(Node h, RectHV rect, Queue<Point2D> q)
+*/
+    public void draw()
+    {
+        //inorder(root, true, "none");
+        inorder(root, new RectHV(0, 0, 1, 1), true);
+    }
+
+    private void range(Node h, RectHV rect, double xmin, double ymin, double xmax, double ymax, boolean odd, Queue<Point2D> q)
     {
         if (h == null) return;
+        
+        boolean go = false;
+        // a rectange cannot intersect with another, if one is completely above/below or to right/left
+        // i.e like x1.max < x2.min or x2.max < x1.min ==> left/right
+        // i.e      y1.max < y2.min or y2.max < y1.min -> below/above
+        // four "or" conditions leads to false or apply negatition
+        // results in four and conditions
+        if (xmax >= rect.xmin() && ymax >= rect.ymin()
+                && rect.xmax() >= xmin && rect.ymax() >= ymin)
+            go = true;
 
-        if (rect.intersects(h.rect)) {
+        if (go) {
             if (rect.contains(h.p))
                 q.enqueue(h.p);
-            range(h.left, rect, q);
-            range(h.right, rect, q);
+           
+            if (odd) range(h.left, rect, xmin, ymin, h.p.x(), ymax, !odd, q);     //xmax = h.p.x()
+            else     range(h.left, rect, xmin, ymin, xmax, h.p.y(), !odd, q);     //ymax = h.p.y();
+
+            if (odd) range(h.right, rect, h.p.x(), ymin, xmax, ymax, !odd, q);     //xmin = h.p.x();
+            else     range(h.right, rect, xmin, h.p.y(), xmax, ymax, !odd, q);          //ymin = h.p.y();
+
         }
     }
 
     public Iterable<Point2D> range(RectHV rect)
     {
         Queue<Point2D> q = new Queue<>();
-        range(root, rect, q);
+        range(root, rect, 0, 0, 1, 1, true, q);
         return q;
     }
     
     private Point2D nearest(Node h, Point2D p, Point2D q, boolean odd)
     {
         Point2D bestP = q;
-//        StdOut.println("bestpoint so far = " + q.toString());
-//        if (h == null)
-//            StdOut.println("node is null returning");
+        
         if (h != null) { 
             double hd, delta;
             double bestDist;
@@ -223,7 +233,6 @@ public class KdTree {
             
             bestDist = bestP.distanceSquaredTo(p);
             hd = h.p.distanceSquaredTo(p);
-//            StdOut.println("h = " + " " +h.p.toString()  + " hd = " + hd + " q = " + q.toString()+ " bestdistance = " + bestDist);
             if (bestDist > hd) {
                 bestDist = hd;
                 bestP = h.p;
@@ -231,29 +240,25 @@ public class KdTree {
 
             cmp = compare(p, h.p, odd);
             if (cmp < 0) {
-//                StdOut.println("Trying to Going left");
                 bestP = nearest(h.left, p, bestP, !odd);
-//                StdOut.println("Returned: Trying to Going left");
                 bestDist = bestP.distanceSquaredTo(p);
                 if (odd) delta = h.p.x() - p.x();
                 else     delta = h.p.y() - p.y();
                 assert (delta >= 0);
+                
                 if (delta * delta < bestDist) { //if a point in left subtree is greater than the line passing thru the h then go thru right subtree else prune
-//                    StdOut.println("Trying to Going right");
                     bestP = nearest(h.right, p, bestP, !odd);
                 }
             }
             else {
-//                StdOut.println("Going Right");
                 bestP = nearest(h.right, p, bestP, !odd);
                 bestDist = bestP.distanceSquaredTo(p);
                 if (odd) delta = p.x() - h.p.x(); 
                 else     delta = p.y() - h.p.y();
 
                 assert (delta >= 0);
-                if (delta * delta < bestDist) { //if a point in left subtree is greater than the line passing thru the h then go thru right subtree else prune
+                if (delta * delta < bestDist) { //if a point in right subtree is greater than the line passing thru the h then go thru left btree else prune
                     bestP = nearest(h.left, p, bestP, !odd);
-//                    StdOut.println("Going left");
                 }
             }
         }
@@ -262,13 +267,10 @@ public class KdTree {
 
     public Point2D nearest(Point2D p)
     {
-//        StdOut.println("===========================");
         if (root != null)
            return nearest(root, p, root.p, true);
-        else
-            return null;
-//        StdOut.println("given point = " + p.toString());
-//        StdOut.println("kdtree point = " + p1.toString() + " dist = " + p1.distanceSquaredTo(p));
+       
+        return null;
     }
     
     public static void main(String[] args)
@@ -283,92 +285,5 @@ public class KdTree {
             StdOut.println("size = " + kd.size());
         }
         //kd.preorder();
-
-
-        /*
-           boolean flag = false;
-           while (flag) {
-           StdOut.printf("\n\n i: Insert\n g: Get \n p: Print keys\n r: Rank \n c: Ceiling\n f: Floor\n d: Delete\n");
-           StdOut.printf(" l: Order \n R: Range :\n x: Exit \n\n");
-           String ch = StdIn.readString();
-           switch (ch) {
-           case "i":
-           StdOut.printf("Enter key (space) value:");
-           k = StdIn.readString();
-           v = StdIn.readInt();
-           st.put(k, v);
-           break;
-           case "g":
-           StdOut.printf("Enter key :");
-           k = StdIn.readString();
-           v = st.get(k);
-           if (v == null) 
-           StdOut.println("Value of Key " + k + ": null");
-           else
-           StdOut.println("Value of Key " + k + ":" + v);
-           break;
-
-           case "p":
-           for (String s:st.keys())
-           StdOut.print(s + " ");
-           StdOut.println();
-           break;
-
-           case "r":
-           StdOut.printf("Enter key:");
-           k = StdIn.readString();
-           StdOut.println("Rank " + k + " = " + st.rank(k));
-           break;
-
-           case "c":
-           StdOut.printf("Enter key:");
-           k = StdIn.readString();
-           String  ceil = st.ceiling(k);
-           if (ceil == null) ceil = "null";
-           StdOut.println("Ceiling " + k + " = " + ceil);
-           break;
-
-           case "f":
-           StdOut.printf("Enter key:");
-           k = StdIn.readString();
-           String  floor = st.floor(k);
-           if (floor == null) floor = "null";
-           StdOut.println("Floor " + k + " = " + floor);
-           break;
-
-           case "l":
-           StdOut.printf("Enter position:");
-           v = StdIn.readInt();
-           StdOut.println("Item at Position: "+ v + " " + st.getItem(v));
-           break;
-
-           case "d":
-           StdOut.printf("Enter key:");
-           k = StdIn.readString();
-           st.delete(k);
-           break;
-
-           case "h":
-           StdOut.println("Height = " + st.height());
-           break;
-
-           case "R":
-           int r1, r2;
-           StdOut.printf("Enter key1 and key2: ");
-           r1 = StdIn.readInt();
-        r2 = StdIn.readInt();
-        StdOut.println("Range " + "(" + r1 + "," + r2 + ")" + " = " + st.range(r1, r2));
-        break;
-
-        case "x":
-        return;
-
-        default:
-        StdOut.println("Invalid option chosen = " + ch);
-        break;
-           }
-           }
-    */
-
     }
 }
