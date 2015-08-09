@@ -20,6 +20,7 @@ public class KdTree {
 
     public KdTree()
     {
+        root = null;
         N = 0;
     }
 
@@ -31,15 +32,17 @@ public class KdTree {
 
     private int compare(Point2D p1, Point2D p2, boolean odd)
     {
+        if ((p1.x() == p2.x()) && p1.y() == p2.y()) 
+            return 0;
+
         if (odd) {
-            if (p1.x() < p2.x()) return -1;
-            else                 return +1;
+            if   (p1.x() < p2.x())  return -1;
+            else                    return +1;
         }
         else {
-            if (p1.y() < p2.y()) return -1;
-            else                 return +1;
+            if   (p1.y() < p2.y())  return -1;
+            else                    return +1;
         }
-
     }
 
     private boolean contains(Node r, Point2D p, boolean level)
@@ -165,7 +168,7 @@ public class KdTree {
 
         StdDraw.setPenRadius(.005);
         p.drawTo(q);
-     //   StdOut.println("h.p = " + h.p.toString() + " " +dir);
+        StdOut.println("h.p = " + h.p.toString() + " " +dir);
     
         inorder(h.right, !odd, "right");
 
@@ -178,7 +181,10 @@ public class KdTree {
         preorder(h.left, "left");
         preorder(h.right, "right");
     }
-
+//    public void preorder()
+//    {
+//        preorder(root, "none");
+//    }
     public void draw()
     {
         inorder(root, true, "none");
@@ -257,10 +263,12 @@ public class KdTree {
     public Point2D nearest(Point2D p)
     {
 //        StdOut.println("===========================");
-        Point2D p1 = nearest(root, p, root.p, true);
+        if (root != null)
+           return nearest(root, p, root.p, true);
+        else
+            return null;
 //        StdOut.println("given point = " + p.toString());
 //        StdOut.println("kdtree point = " + p1.toString() + " dist = " + p1.distanceSquaredTo(p));
-        return p1;
     }
     
     public static void main(String[] args)
@@ -272,8 +280,9 @@ public class KdTree {
             double y = in.readDouble();
             Point2D p = new Point2D(x, y);
             kd.insert(p);
+            StdOut.println("size = " + kd.size());
         }
-        kd.draw();
+        //kd.preorder();
 
 
         /*
