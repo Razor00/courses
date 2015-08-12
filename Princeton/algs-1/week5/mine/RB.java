@@ -368,7 +368,7 @@ public class RB<Key extends Comparable<Key>, Value> {
             lo = range(h.left, q, pos - off, lo, hi);
         }
 
-        if (pos == lo) { 
+        if (lo <= hi && pos == lo) { 
             q.enqueue(h.key);
             lo++;
         }

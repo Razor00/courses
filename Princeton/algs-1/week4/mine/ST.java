@@ -305,8 +305,17 @@ public class ST<Key extends Comparable<Key>, Value> {
             int off = 1 + size(h.left.right);
             lo = range(h.left, q, pos - off, lo, hi);
         }
+        //   A (1)
+        //    \
+        //     D(3)
+        //   /   \
+        //  C(2)   Z(4)
+        //  After finish C, it would go back to D right
+        //  and D is above code.
+        //  lo = 2+1, pos = 3
+        //  as lo > hi, we should not print anymore, but below code without that check would print it.
 
-        if (pos == lo) { 
+        if (lo <= hi && pos == lo) { 
             q.enqueue(h.key);
             lo++;
         }
@@ -321,7 +330,7 @@ public class ST<Key extends Comparable<Key>, Value> {
     public Iterable<Key> range(int lo, int hi)
     {
         Queue<Key> queue = new Queue<>();
-        assert(lo < hi);
+        assert(lo <= hi);
         
         if (lo <= size(root))
             range(root, queue, size(root.left) + 1, lo, hi);
@@ -356,13 +365,15 @@ public class ST<Key extends Comparable<Key>, Value> {
         ST<String, Integer> st = new ST<>();
         String k;
         Integer v;
+/*
         String[] str = StdIn.readAllStrings();
         for (int i = 0; i < str.length; i++)
             st.put(str[i], 1);
 
         StdOut.println("Range "  + st.range(3, 20));
+*/
 
-        boolean flag = false;
+        boolean flag = true;
         while (flag) {
             StdOut.printf("\n\n i: Insert\n g: Get \n p: Print keys\n r: Rank \n c: Ceiling\n f: Floor\n d: Delete\n");
             StdOut.printf(" l: Order \n R: Range :\n x: Exit \n\n");
