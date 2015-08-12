@@ -390,6 +390,23 @@ public class RB<Key extends Comparable<Key>, Value> {
 
         return q;
     }
+
+    public Iterable<Key> range(Key n1, Key n2)
+    {
+        int lo, hi;
+        lo = rank(n1);
+        hi = rank(n2);
+        
+        if (!contains(n1))
+            lo++;
+
+        if (!contains(n2))
+            hi--;
+       
+        return range(rank(n1), rank(n2));
+    }
+
+
     public Iterable<Key> keys()
     {
         Queue<Key> queue = new Queue<>();
@@ -445,8 +462,9 @@ public class RB<Key extends Comparable<Key>, Value> {
         String k;
         Integer v;
         while (true) {
+
             StdOut.printf("\n\n i: Insert\n g: Get \n p: Print keys\n r: Rank \n c: Ceiling\n f: Floor\n d: Delete\n");
-            StdOut.printf(" l: Order \n h: height \n R: Range \n x: Exit \n\n");
+            StdOut.printf(" l: Order \n R: Range(index) :\n S: Range(keys): \n x: Exit \n\n");
             String ch = StdIn.readString();
             switch (ch) {
                 case "i":
@@ -516,6 +534,15 @@ public class RB<Key extends Comparable<Key>, Value> {
                     r2 = StdIn.readInt();
                     StdOut.println("Range " + "(" + r1 + "," + r2 + ")" + " = " + rb.range(r1, r2));
                     break;
+
+                 case "S":
+                    String s1, s2;
+                    StdOut.printf("Enter key1 and key2: ");
+                    s1 = StdIn.readString();
+                    s2 = StdIn.readString();
+                    StdOut.println("Range " + "(" + s1 + "," + s2 + ")" + " = " + rb.range(s1, s2));
+                    break;
+
 
                 case "x":
                     return;
